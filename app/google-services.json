@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "205360012486",
+    "firebase_url": "https://letshangout-2.firebaseio.com",
+    "project_id": "letshangout-2",
+    "storage_bucket": "letshangout-2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:205360012486:android:dd8e949394985a83",
+        "android_client_info": {
+          "package_name": "androidapp.social.jj.letshangout"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "205360012486-6l306c5070sfihrfpqqtt92o3556slm9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "androidapp.social.jj.letshangout",
+            "certificate_hash": "0DB8D8BFC32C4E7B5E904CE2D350A2107B8B2084"
+          }
+        },
+        {
+          "client_id": "205360012486-v84c43jpkbovqu9b4gulv9q6cr9ohv6i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAq7cm1dYglqoW3J7KAArVS1cEaIpx8IfQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "205360012486-v84c43jpkbovqu9b4gulv9q6cr9ohv6i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
