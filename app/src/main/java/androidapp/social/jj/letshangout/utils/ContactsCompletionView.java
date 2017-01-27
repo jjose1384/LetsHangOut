@@ -10,6 +10,9 @@ import android.widget.TextView;
 
 import com.tokenautocomplete.TokenCompleteTextView;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import androidapp.social.jj.letshangout.R;
 import androidapp.social.jj.letshangout.dto.User;
 
@@ -17,7 +20,11 @@ import androidapp.social.jj.letshangout.dto.User;
  * Created by Jason on 1/19/2017.
  */
 
-public class ContactsCompletionView extends TokenCompleteTextView<User> {
+public class ContactsCompletionView extends TokenCompleteTextView<User>
+        implements TokenCompleteTextView.TokenListener{
+
+    private Map<String, User> inviteesMap = new HashMap<>();
+
     public ContactsCompletionView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
@@ -41,5 +48,25 @@ public class ContactsCompletionView extends TokenCompleteTextView<User> {
         } else {
             return new User(null, completionText.substring(0, index), completionText, null);
         }
+    }
+
+    public Map<String, User> getInviteesMap() {
+        return inviteesMap;
+    }
+
+    @Override
+    public void onTokenAdded(Object token) {
+        User user = (User) token;
+        inviteesMap.put(user.getUserId(), user);
+
+        System.out.println("User added: " + user);
+    }
+
+    @Override
+    public void onTokenRemoved(Object token) {
+        User user = (User) token;
+        inviteesMap.remove(user.getUserId());
+
+        System.out.println("User removed: " + user);
     }
 }

@@ -34,5 +34,7 @@
     <string name="title_activity_add_edit_invitation">Create Invitation</string>
     <string name="who">Who</string>
     <string name="what">What</string>
+    <string name="where">Where</string>
+    <string name="when">When</string>
 
 </resources>
