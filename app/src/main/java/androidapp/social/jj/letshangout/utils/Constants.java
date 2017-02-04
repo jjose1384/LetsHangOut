@@ -9,4 +9,11 @@ import java.text.SimpleDateFormat;
 public class Constants {
 
     public static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE, MMM dd yyyy 'at' hh:mm aaa");
+    public static final String placeIdPlaceHolderPrefix = "-random-";
+
+    public enum goingOptions {
+        YES,
+        NO,
+        NOT_RESPONDED;
+    }
 }

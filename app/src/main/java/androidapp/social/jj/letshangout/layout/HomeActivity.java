@@ -84,8 +84,11 @@ public class HomeActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        // TODO - menu options
+        if (id == R.id.item_sendFriendRequest) {
+            return true;
+        }
+        else if (id == R.id.item_editProfile) {
             return true;
         }
         else if (id == R.id.item_logout) {

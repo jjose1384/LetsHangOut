@@ -1,6 +1,10 @@
 package androidapp.social.jj.letshangout.dto;
 
+import com.google.firebase.database.Exclude;
+
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Jason on 1/20/2017.
@@ -8,17 +12,34 @@ import java.io.Serializable;
 
 public class Place implements Serializable{
 
-    String placeId; // pk
-    String invitationId;
-    String name;
+    private String placeId; // pk
+    private String invitationId;
+    private String name;
+    private String googlePlaceId;
+    private int voteCount;
+
 
     public Place() {
     }
 
-    public Place(String placeId, String invitationId, String name) {
+    public Place(String placeId, String invitationId, String name, String googlePlaceId, int voteCount) {
         this.placeId = placeId;
         this.invitationId = invitationId;
         this.name = name;
+        this.googlePlaceId = googlePlaceId;
+        this.voteCount = voteCount;
+    }
+
+    @Exclude
+    public Map<String, Object> toMap() {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("placeId", placeId);
+        result.put("invitationId", invitationId);
+        result.put("name", name);
+        result.put("googlePlaceId", googlePlaceId);
+        result.put("voteCount", voteCount);
+
+        return result;
     }
 
     @Override
@@ -59,5 +80,21 @@ public class Place implements Serializable{
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getGooglePlaceId() {
+        return googlePlaceId;
+    }
+
+    public void setGooglePlaceId(String googlePlaceId) {
+        this.googlePlaceId = googlePlaceId;
+    }
+
+    public int getVoteCount() {
+        return voteCount;
+    }
+
+    public void setVoteCount(int voteCount) {
+        this.voteCount = voteCount;
     }
 }

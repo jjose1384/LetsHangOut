@@ -26,7 +26,7 @@ import androidapp.social.jj.letshangout.R;
 public class PlacesCompletionView extends TokenCompleteTextView<AutocompletePrediction>
         implements TokenCompleteTextView.TokenListener{
 
-    private Map<String, AutocompletePrediction> placeList = new HashMap<>();
+    private Map<String, AutocompletePrediction> placeMap = new HashMap<>();
 
     public PlacesCompletionView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -47,14 +47,14 @@ public class PlacesCompletionView extends TokenCompleteTextView<AutocompletePred
         return new DummyAutocompletePrediction(completionText);
     }
 
-    public Map<String, AutocompletePrediction> getPlaceList() {
-        return placeList;
+    public Map<String, AutocompletePrediction> getPlaceMap() {
+        return placeMap;
     }
 
     @Override
     public void onTokenAdded(Object token) {
         AutocompletePrediction place = (AutocompletePrediction) token;
-        placeList.put(place.getPlaceId(), place);
+        placeMap.put(place.getPlaceId(), place);
 
         System.out.println("Place added: " + token);
     }
@@ -62,7 +62,7 @@ public class PlacesCompletionView extends TokenCompleteTextView<AutocompletePred
     @Override
     public void onTokenRemoved(Object token) {
         AutocompletePrediction place = (AutocompletePrediction) token;
-        placeList.remove(place.getPlaceId());
+        placeMap.remove(place.getPlaceId());
 
         System.out.println("Place removed: " + token);
     }
@@ -86,19 +86,19 @@ public class PlacesCompletionView extends TokenCompleteTextView<AutocompletePred
 
         @Override
         public CharSequence getPrimaryText(@Nullable CharacterStyle characterStyle) {
-            return null;
+            return text;
         }
 
         @Override
         public CharSequence getSecondaryText(@Nullable CharacterStyle characterStyle) {
-            return null;
+            return text;
         }
 
         @Nullable
         @Override
         public String getPlaceId() {
-            return null;
-        }
+            return Constants.placeIdPlaceHolderPrefix + text;
+        } // for dummy object, the text will be returned as placeId in '-random-<text>' format
 
         @Nullable
         @Override

@@ -3,9 +3,14 @@
       xmlns:tools="http://schemas.android.com/tools"
       tools:context="androidapp.social.jj.letshangout.layout.HomeActivity">
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/item_sendFriendRequest"
         android:orderInCategory="100"
-        android:title="@string/action_settings"
+        android:title="@string/sendFriendRequest"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/item_editProfile"
+        android:orderInCategory="100"
+        android:title="@string/editProfile"
         app:showAsAction="never"/>
     <item
         android:id="@+id/item_logout"

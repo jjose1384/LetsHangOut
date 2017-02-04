@@ -1,6 +1,10 @@
 package androidapp.social.jj.letshangout.dto;
 
+import com.google.firebase.database.Exclude;
+
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Jason on 1/21/2017.
@@ -31,6 +35,22 @@ public class Invitation implements Serializable {
         this.sender = sender;
         this.rsvpBy = rsvpBy;
     }
+
+    @Exclude
+    public Map<String, Object> toMap() {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("invitationId", invitationId);
+        result.put("what", what);
+        result.put("when", when);
+        result.put("closed", closed);
+        result.put("invitationSent", invitationSent);
+        result.put("sender", sender);
+        result.put("rsvpBy", rsvpBy);
+
+        return result;
+    }
+
+
 
     @Override
     public boolean equals(Object o) {

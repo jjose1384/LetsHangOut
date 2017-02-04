@@ -27,8 +27,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.Places;
+import com.google.android.gms.location.places.AutocompletePrediction;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.model.LatLng;
@@ -42,9 +41,13 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import androidapp.social.jj.letshangout.R;
 import androidapp.social.jj.letshangout.dto.Invitation;
+import androidapp.social.jj.letshangout.dto.InvitationResponse;
+import androidapp.social.jj.letshangout.dto.Place;
 import androidapp.social.jj.letshangout.dto.User;
 import androidapp.social.jj.letshangout.utils.Constants;
 import androidapp.social.jj.letshangout.utils.ContactsCompletionView;
@@ -63,6 +66,9 @@ public class AddEditInvitationActivity extends AppCompatActivity
 
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
+
+    private PlacesCompletionView placesCompletionView;
+    private ContactsCompletionView contactsCompletionView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -187,9 +193,11 @@ public class AddEditInvitationActivity extends AppCompatActivity
 
         friendsReference.addChildEventListener(childEventListener);
 
-        ContactsCompletionView contactsCompletionView = (ContactsCompletionView) findViewById(R.id.contactsCompletionView_who);
+        contactsCompletionView =
+                (ContactsCompletionView) findViewById(R.id.contactsCompletionView_who);
         contactsCompletionView.setAdapter(adapter);
         contactsCompletionView.allowDuplicates(false);
+        contactsCompletionView.performBestGuess(true); // does not allow free entry
         contactsCompletionView.setTokenListener(contactsCompletionView);
     }
 
@@ -200,8 +208,8 @@ public class AddEditInvitationActivity extends AppCompatActivity
     private void setupWhereAutocomplete() {
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
-                    .addApi(Places.GEO_DATA_API)
-                    .addApi(Places.PLACE_DETECTION_API)
+                    .addApi(com.google.android.gms.location.places.Places.GEO_DATA_API)
+                    .addApi(com.google.android.gms.location.places.Places.PLACE_DETECTION_API)
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this)
                     .addApi(LocationServices.API)
@@ -226,10 +234,11 @@ public class AddEditInvitationActivity extends AppCompatActivity
         PlaceAutocompleteAdapter adapter = new PlaceAutocompleteAdapter(this, mGoogleApiClient, bounds,
                 null);
 
-        PlacesCompletionView placesCompletionView =
+        placesCompletionView =
                 (PlacesCompletionView)findViewById(R.id.placesCompletionView_where);
         placesCompletionView.setAdapter(adapter);
         placesCompletionView.allowDuplicates(false);
+        placesCompletionView.performBestGuess(false); // allows free entry
         placesCompletionView.setTokenListener(placesCompletionView);
     }
 
@@ -242,7 +251,7 @@ public class AddEditInvitationActivity extends AppCompatActivity
 
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
-            public void onPlaceSelected(Place place) {
+            public void onPlaceSelected(com.google.android.gms.location.places.Place place) {
                 // TODO: Get info about the selected place.
                 Log.i(TAG, "Place: " + place.getName());
             }
@@ -319,18 +328,15 @@ public class AddEditInvitationActivity extends AppCompatActivity
 
     private void createInvitation()
     {
-        // TODO
-        // user multipath update to add invitation, list of places and list of invitees
-
 
         // Add new invitation to firebase
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-        DatabaseReference invitationReference = firebaseDatabase.getReference("Invitation/");
-        String invitationKey = invitationReference.push().getKey();
+        Map<String, Object> childUpdates = new HashMap<>();
 
-
+        // new invitation
         Invitation newInvitation = new Invitation();
-        newInvitation.setInvitationId(invitationKey);
+        String invitationId = firebaseDatabase.getReference("Invitation/").push().getKey();
+        newInvitation.setInvitationId(invitationId);
         newInvitation.setSender(FirebaseAuth.getInstance().getCurrentUser().getUid());
         newInvitation.setWhat(((EditText)findViewById(R.id.editText_what)).getText().toString());
         try {
@@ -340,7 +346,51 @@ public class AddEditInvitationActivity extends AppCompatActivity
             e.printStackTrace();
         }
 
-        invitationReference.child(invitationKey).setValue(newInvitation);
+        Map<String, Object> invitationValues = newInvitation.toMap();
+        childUpdates.put("/Invitation/" + invitationId, invitationValues);
+
+
+        // add list of friends
+        Map<String, User> inviteesMap = contactsCompletionView.getInviteesMap();
+        for (String userId: inviteesMap.keySet())
+        {
+            User invitee = inviteesMap.get(userId);
+
+            InvitationResponse newInvitationResponse = new InvitationResponse();
+            newInvitationResponse.setInvitationId(invitationId);
+            newInvitationResponse.setUserId(userId);
+            newInvitationResponse.setGoing(Constants.goingOptions.NOT_RESPONDED.toString());
+
+            Map<String, Object> invitationResponseValues = newInvitationResponse.toMap();
+            childUpdates.put("/InvitationResponse/" + invitationId + "/" + userId, invitationResponseValues);
+        }
+
+
+        // add list of places
+        Map<String, AutocompletePrediction> placeMap = placesCompletionView.getPlaceMap();
+        for (String googlePlaceId: placeMap.keySet())
+        {
+            AutocompletePrediction googlePlace = placeMap.get(googlePlaceId);
+
+            Place newPlace = new Place();
+            String placeId = firebaseDatabase.getReference("Place/"+invitationId + "/").push().getKey();
+            newPlace.setInvitationId(invitationId);
+            newPlace.setPlaceId(placeId);
+            // if it's not an actual google placeId, don't add it
+            newPlace.setGooglePlaceId(googlePlaceId.startsWith(Constants.placeIdPlaceHolderPrefix)?null:googlePlaceId);
+            newPlace.setName(googlePlace.getPrimaryText(null).toString());
+
+            Map<String, Object> placeValues = newPlace.toMap();
+            childUpdates.put("/Place/" + invitationId + "/" + placeId, placeValues);
+        }
+
+
+
+
+
+        // save all objects atomically
+        firebaseDatabase.getReference().updateChildren(childUpdates);
+
 
         // Navigate to the home screen after creating an invitation
         Intent intent = new Intent(context, HomeActivity.class);
