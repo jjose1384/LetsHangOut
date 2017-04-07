@@ -155,7 +155,6 @@ public class AddEditInvitationActivity extends AppCompatActivity
 
                 System.out.println("------------> User changed");
 
-                // ...
             }
 
             @Override
@@ -169,7 +168,6 @@ public class AddEditInvitationActivity extends AppCompatActivity
 
                 System.out.println("------------> User deleted");
 
-                // ...
             }
 
             @Override
@@ -181,7 +179,6 @@ public class AddEditInvitationActivity extends AppCompatActivity
                 User movedUser = dataSnapshot.getValue(User.class);
                 String userKey = dataSnapshot.getKey();
 
-                // ...
             }
 
             @Override
@@ -332,12 +329,13 @@ public class AddEditInvitationActivity extends AppCompatActivity
         // Add new invitation to firebase
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         Map<String, Object> childUpdates = new HashMap<>();
+        String loggedInUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         // new invitation
         Invitation newInvitation = new Invitation();
         String invitationId = firebaseDatabase.getReference("Invitation/").push().getKey();
         newInvitation.setInvitationId(invitationId);
-        newInvitation.setSender(FirebaseAuth.getInstance().getCurrentUser().getUid());
+        newInvitation.setSender(loggedInUserId);
         newInvitation.setWhat(((EditText)findViewById(R.id.editText_what)).getText().toString());
         try {
             newInvitation.setWhen(Constants.simpleDateFormat.parse(
@@ -347,22 +345,38 @@ public class AddEditInvitationActivity extends AppCompatActivity
         }
 
         Map<String, Object> invitationValues = newInvitation.toMap();
+        // creating Invitation object
         childUpdates.put("/Invitation/" + invitationId, invitationValues);
 
+        // adding Invitation object into sentInvitations
+        // and waitingInvitations under InvitationsList for the sender
+        childUpdates.put("/InvitationsList/" + loggedInUserId + "/waitingInvitations/" + invitationId, invitationValues);
+        childUpdates.put("/InvitationsList/" + loggedInUserId + "/sentInvitations/" + invitationId, invitationValues);
 
-        // add list of friends
+
+        // creating InvitationResponse for the sender
+        InvitationResponse newInvitationResponse = new InvitationResponse();
+        newInvitationResponse.setInvitationId(invitationId);
+        newInvitationResponse.setUserId(loggedInUserId);
+        newInvitationResponse.setGoing(Constants.goingOptions.NOT_RESPONDED.toString());
+        Map<String, Object> invitationResponseValues = newInvitationResponse.toMap();
+        childUpdates.put("/InvitationResponse/" + invitationId + "/" + loggedInUserId, invitationResponseValues);
+
+
+        // add list of friends(InvitationResponse) and add InvitationsList
+        // so you can get to the list of invitations easily for each user
         Map<String, User> inviteesMap = contactsCompletionView.getInviteesMap();
         for (String userId: inviteesMap.keySet())
         {
+            // creating InvitationResponse for invitees
             User invitee = inviteesMap.get(userId);
-
-            InvitationResponse newInvitationResponse = new InvitationResponse();
-            newInvitationResponse.setInvitationId(invitationId);
             newInvitationResponse.setUserId(userId);
-            newInvitationResponse.setGoing(Constants.goingOptions.NOT_RESPONDED.toString());
 
-            Map<String, Object> invitationResponseValues = newInvitationResponse.toMap();
+            invitationResponseValues = newInvitationResponse.toMap();
             childUpdates.put("/InvitationResponse/" + invitationId + "/" + userId, invitationResponseValues);
+
+            // creating InvitationsList objects under waiting initations(one for each invitee, including sender)
+            childUpdates.put("/InvitationsList/" + userId + "/waitingInvitations/" + invitationId, invitationValues);
         }
 
 
@@ -383,9 +397,6 @@ public class AddEditInvitationActivity extends AppCompatActivity
             Map<String, Object> placeValues = newPlace.toMap();
             childUpdates.put("/Place/" + invitationId + "/" + placeId, placeValues);
         }
-
-
-
 
 
         // save all objects atomically

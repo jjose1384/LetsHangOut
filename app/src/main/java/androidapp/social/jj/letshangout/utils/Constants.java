@@ -16,4 +16,11 @@ public class Constants {
         NO,
         NOT_RESPONDED;
     }
+
+    public enum invitationListOptions {
+        sentInvitations,
+        waitingInvitations,
+        acceptedInvitations,
+        declinedInvitations;
+    }
 }

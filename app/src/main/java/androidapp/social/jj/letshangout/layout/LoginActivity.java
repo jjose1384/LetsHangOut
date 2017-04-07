@@ -36,6 +36,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -76,10 +77,18 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        initializeFirebase();
+
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        // initialize firebase
+        initializeFirebase();
+
+        // setup autologin
+        autoLoginSetup();
+
+
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
@@ -346,6 +355,26 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         DatabaseReference myRef = database.getReference("message");
 
         myRef.setValue("Hello, World!");
+    }
+
+    // login in user automatically if they haven't logged off
+    private void autoLoginSetup()
+    {
+        // if a user is logged in navigate them to home screen
+        FirebaseUser loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (loggedInUser != null)
+        {
+            // Navigate to the home screen
+            Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+            startActivity(intent);
+            finish();
+            System.out.println("  ---------->Logged in user ID: " + loggedInUser.getUid());
+        }
+        else
+        {
+            System.out.println("  ---------->No user logged in");
+        }
+
     }
 
 

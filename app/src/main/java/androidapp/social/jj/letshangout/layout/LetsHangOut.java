@@ -12,6 +12,7 @@ public class LetsHangOut extends Application {
     public void onCreate() {
         super.onCreate();
 
-        System.out.println("LetsHangOut: application started");
+        System.out.println("------------> LetsHangOut: application started");
+
     }
 }
