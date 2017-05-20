@@ -1,6 +1,10 @@
 package androidapp.social.jj.letshangout.dto;
 
+import com.google.firebase.database.Exclude;
+
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Jason on 1/19/2017.
@@ -22,6 +26,17 @@ public class User implements Serializable {
         this.fullName = fullName;
         this.email = email;
         this.password = password;
+    }
+
+    @Exclude
+    public Map<String, Object> toMap() {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("userId", userId);
+        result.put("fullName", fullName);
+        result.put("email", email);
+        result.put("password", password);
+
+        return result;
     }
 
     @Override

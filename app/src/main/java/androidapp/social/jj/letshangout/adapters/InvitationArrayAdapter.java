@@ -43,4 +43,8 @@ public class InvitationArrayAdapter extends ArrayAdapter<Invitation> {
 
         return rowView;
     }
+
+    public Invitation getItem(int position){
+        return values.get(position);
+    }
 }

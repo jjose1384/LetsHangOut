@@ -15,10 +15,9 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 import androidapp.social.jj.letshangout.R;
+import androidapp.social.jj.letshangout.dao.UserDAO;
 import androidapp.social.jj.letshangout.dto.User;
 
 public class RegistrationActivity extends AppCompatActivity {
@@ -37,10 +36,6 @@ public class RegistrationActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 register();
-
-                Intent intent = new Intent(context, LoginActivity.class);
-                finish();
-                startActivity(intent);
             }
         });
 
@@ -62,30 +57,27 @@ public class RegistrationActivity extends AppCompatActivity {
         final String password = ((EditText) findViewById(R.id.editText_password)).getText().toString();
 
 
+        // TODO: will need to code email verification
+
+
         final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-        firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+        firebaseAuth.createUserWithEmailAndPassword(email, password).
+                addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 Log.d(TAG, "createUserWithEmail:onComplete:" + task.isSuccessful());
-
-                // don't keep the user signed in.
-                // TODO: will need to code email verification
-                firebaseAuth.signOut();
 
                 if (!task.isSuccessful()) // registration failed
                 {
                     Toast.makeText(context, R.string.registration_failed, Toast.LENGTH_LONG).show();
                     System.out.println("----> registration failed");
-                } else // registration successful
+                }
+                else // registration successful
                 {
                     Toast.makeText(context, R.string.registration_successful, Toast.LENGTH_LONG).show();
                     System.out.println("----> registration successful");
 
                     String userId = firebaseAuth.getCurrentUser().getUid();
-
-                    // Register a user
-                    FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-                    DatabaseReference userReference = firebaseDatabase.getReference("User/" + userId);
 
                     User newUser = new User();
                     newUser.setFullName(((EditText) findViewById(R.id.editText_fullName)).getText().toString());
@@ -93,8 +85,18 @@ public class RegistrationActivity extends AppCompatActivity {
                     newUser.setPassword(password);
                     newUser.setUserId(userId);
 
-                    userReference.setValue(newUser);
+                    UserDAO.registerUser(newUser);
+
+                    // On successful registration, navigation to Home screen
+                    Intent intent = new Intent(context, HomeActivity.class);
+                    finish();
+                    startActivity(intent);
+
+                    // don't keep the user signed in.
+                    // firebaseAuth.signOut();
+
                 }
+
             }
         });
 

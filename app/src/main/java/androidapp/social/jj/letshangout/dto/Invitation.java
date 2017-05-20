@@ -19,6 +19,8 @@ public class Invitation implements Serializable {
     Long invitationSent; // time when the invitation was sent
     String sender; // sender userId
     Long rsvpBy; // invitees need to respond by this time
+    int inviteeCount; // number of invitees, this helps to have a count of the children for the InvitationResponse object
+                      // since firebase doesn't provide a way to count children
 
     /*
         Default constructor required by Firebase
@@ -26,7 +28,9 @@ public class Invitation implements Serializable {
     public Invitation() {
     }
 
-    public Invitation(String invitationId, String what, Long when, boolean closed, Long invitationSent, String sender, Long rsvpBy) {
+    public Invitation(String invitationId, String what, Long when,
+                      boolean closed, Long invitationSent, String sender,
+                      Long rsvpBy, int inviteeCount) {
         this.invitationId = invitationId;
         this.what = what;
         this.when = when;
@@ -34,6 +38,7 @@ public class Invitation implements Serializable {
         this.invitationSent = invitationSent;
         this.sender = sender;
         this.rsvpBy = rsvpBy;
+        this.inviteeCount = inviteeCount;
     }
 
     @Exclude
@@ -46,6 +51,7 @@ public class Invitation implements Serializable {
         result.put("invitationSent", invitationSent);
         result.put("sender", sender);
         result.put("rsvpBy", rsvpBy);
+        result.put("inviteeCount", inviteeCount);
 
         return result;
     }
@@ -123,4 +129,8 @@ public class Invitation implements Serializable {
     public void setRsvpBy(Long rsvpBy) {
         this.rsvpBy = rsvpBy;
     }
+
+    public int getInviteeCount() { return inviteeCount;  }
+
+    public void setInviteeCount(int inviteeCount) {  this.inviteeCount = inviteeCount; }
 }

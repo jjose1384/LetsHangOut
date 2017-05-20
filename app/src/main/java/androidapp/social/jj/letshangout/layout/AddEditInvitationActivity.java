@@ -32,7 +32,6 @@ import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -41,13 +40,10 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.ParseException;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 import androidapp.social.jj.letshangout.R;
-import androidapp.social.jj.letshangout.dto.Invitation;
-import androidapp.social.jj.letshangout.dto.InvitationResponse;
-import androidapp.social.jj.letshangout.dto.Place;
+import androidapp.social.jj.letshangout.dao.InvitationDAO;
 import androidapp.social.jj.letshangout.dto.User;
 import androidapp.social.jj.letshangout.utils.Constants;
 import androidapp.social.jj.letshangout.utils.ContactsCompletionView;
@@ -325,82 +321,18 @@ public class AddEditInvitationActivity extends AppCompatActivity
 
     private void createInvitation()
     {
-
-        // Add new invitation to firebase
-        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-        Map<String, Object> childUpdates = new HashMap<>();
-        String loggedInUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-        // new invitation
-        Invitation newInvitation = new Invitation();
-        String invitationId = firebaseDatabase.getReference("Invitation/").push().getKey();
-        newInvitation.setInvitationId(invitationId);
-        newInvitation.setSender(loggedInUserId);
-        newInvitation.setWhat(((EditText)findViewById(R.id.editText_what)).getText().toString());
-        try {
-            newInvitation.setWhen(Constants.simpleDateFormat.parse(
-                    ((EditText)findViewById(R.id.editText_when)).getText().toString()).getTime());
-        } catch (ParseException e) {
+        try
+        {
+            String what = ((EditText) findViewById(R.id.editText_what)).getText().toString();
+            Date when = Constants.simpleDateFormat.parse(((EditText) findViewById(R.id.editText_when)).getText().toString());
+            Map<String, User> inviteesMap = contactsCompletionView.getInviteesMap();
+            Map<String, AutocompletePrediction> placeMap = placesCompletionView.getPlaceMap();
+            InvitationDAO.createInvitation(what, when, inviteesMap, placeMap);
+        }
+        catch (ParseException e)
+        {
             e.printStackTrace();
         }
-
-        Map<String, Object> invitationValues = newInvitation.toMap();
-        // creating Invitation object
-        childUpdates.put("/Invitation/" + invitationId, invitationValues);
-
-        // adding Invitation object into sentInvitations
-        // and waitingInvitations under InvitationsList for the sender
-        childUpdates.put("/InvitationsList/" + loggedInUserId + "/waitingInvitations/" + invitationId, invitationValues);
-        childUpdates.put("/InvitationsList/" + loggedInUserId + "/sentInvitations/" + invitationId, invitationValues);
-
-
-        // creating InvitationResponse for the sender
-        InvitationResponse newInvitationResponse = new InvitationResponse();
-        newInvitationResponse.setInvitationId(invitationId);
-        newInvitationResponse.setUserId(loggedInUserId);
-        newInvitationResponse.setGoing(Constants.goingOptions.NOT_RESPONDED.toString());
-        Map<String, Object> invitationResponseValues = newInvitationResponse.toMap();
-        childUpdates.put("/InvitationResponse/" + invitationId + "/" + loggedInUserId, invitationResponseValues);
-
-
-        // add list of friends(InvitationResponse) and add InvitationsList
-        // so you can get to the list of invitations easily for each user
-        Map<String, User> inviteesMap = contactsCompletionView.getInviteesMap();
-        for (String userId: inviteesMap.keySet())
-        {
-            // creating InvitationResponse for invitees
-            User invitee = inviteesMap.get(userId);
-            newInvitationResponse.setUserId(userId);
-
-            invitationResponseValues = newInvitationResponse.toMap();
-            childUpdates.put("/InvitationResponse/" + invitationId + "/" + userId, invitationResponseValues);
-
-            // creating InvitationsList objects under waiting initations(one for each invitee, including sender)
-            childUpdates.put("/InvitationsList/" + userId + "/waitingInvitations/" + invitationId, invitationValues);
-        }
-
-
-        // add list of places
-        Map<String, AutocompletePrediction> placeMap = placesCompletionView.getPlaceMap();
-        for (String googlePlaceId: placeMap.keySet())
-        {
-            AutocompletePrediction googlePlace = placeMap.get(googlePlaceId);
-
-            Place newPlace = new Place();
-            String placeId = firebaseDatabase.getReference("Place/"+invitationId + "/").push().getKey();
-            newPlace.setInvitationId(invitationId);
-            newPlace.setPlaceId(placeId);
-            // if it's not an actual google placeId, don't add it
-            newPlace.setGooglePlaceId(googlePlaceId.startsWith(Constants.placeIdPlaceHolderPrefix)?null:googlePlaceId);
-            newPlace.setName(googlePlace.getPrimaryText(null).toString());
-
-            Map<String, Object> placeValues = newPlace.toMap();
-            childUpdates.put("/Place/" + invitationId + "/" + placeId, placeValues);
-        }
-
-
-        // save all objects atomically
-        firebaseDatabase.getReference().updateChildren(childUpdates);
 
 
         // Navigate to the home screen after creating an invitation

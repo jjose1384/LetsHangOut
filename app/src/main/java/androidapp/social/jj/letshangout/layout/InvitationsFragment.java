@@ -4,12 +4,14 @@ package androidapp.social.jj.letshangout.layout;
  * Created by Jason on 1/12/2017.
  */
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -150,6 +152,18 @@ public class InvitationsFragment extends Fragment {
 
             invitationsReference.addChildEventListener(childEventListener);
             ListView listView = (ListView) rootView.findViewById(listViewId);
+
+            // navigate to the send RSVP screen when invitation is clicked
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Invitation invitation = invitationArrayAdapter.getItem(position);
+
+                    Intent intent = new Intent(getActivity(), AddEditRSVPActivity.class);
+                    intent.putExtra("invitation", invitation);
+                    startActivity(intent);
+                }
+            });
             listView.setAdapter(invitationArrayAdapter);
         }
     }
