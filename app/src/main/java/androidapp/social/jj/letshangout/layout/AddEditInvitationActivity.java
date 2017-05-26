@@ -25,11 +25,8 @@ import com.github.jjobes.slidedatetimepicker.SlideDateTimePicker;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
-import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.AutocompletePrediction;
-import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
-import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.firebase.database.ChildEventListener;
@@ -75,18 +72,14 @@ public class AddEditInvitationActivity extends AppCompatActivity
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        // setup who autocomplete
+        // setup who autocomplete, with chips
         setupWhoAutocomplete();
 
-        // setup who autocomplete with google places
+        // setup where autocomplete with google places, with chips
         setupWhereAutocomplete();
 
         // setup when datepicker
         setupWhenDatePicker();
-
-
-        // setup google places
-        setupGooglePlaces();
 
 
         // send Invitation button
@@ -216,7 +209,7 @@ public class AddEditInvitationActivity extends AppCompatActivity
         LatLngBounds BOUNDS_GREATER_SYDNEY = new LatLngBounds(
                 new LatLng(-34.041458, 150.790100), new LatLng(-33.682247, 151.383362));
         LatLngBounds bounds = BOUNDS_GREATER_SYDNEY;
-        // don't hav permission to access location
+        // don't have permission to access location
 
         if (mLastLocation != null)
         {
@@ -233,28 +226,6 @@ public class AddEditInvitationActivity extends AppCompatActivity
         placesCompletionView.allowDuplicates(false);
         placesCompletionView.performBestGuess(false); // allows free entry
         placesCompletionView.setTokenListener(placesCompletionView);
-    }
-
-
-    // setup google places autocomplete
-    private void setupGooglePlaces()
-    {
-        PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
-                getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
-
-        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-            @Override
-            public void onPlaceSelected(com.google.android.gms.location.places.Place place) {
-                // TODO: Get info about the selected place.
-                Log.i(TAG, "Place: " + place.getName());
-            }
-
-            @Override
-            public void onError(Status status) {
-                // TODO: Handle the error.
-                Log.i(TAG, "An error occurred: " + status);
-            }
-        });
     }
 
     // using slideDateTimePicker to combine Date and Time picker

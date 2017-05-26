@@ -133,13 +133,19 @@
 
             </RadioGroup>
 
-            <EditText
-                android:id="@+id/editText_other"
+            <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text"
-                android:layout_marginLeft="30dp"
-                android:enabled="false"/>
+                android:layout_height="wrap_content">
+
+                <androidapp.social.jj.letshangout.utils.PlacesCompletionView
+                    android:id="@+id/placesCompletionView_other"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="30dp"
+                    android:inputType="text"
+                    android:enabled="false"/>
+
+            </android.support.design.widget.TextInputLayout>
 
 
             <Button

@@ -39,6 +39,7 @@
     <string name="when">When</string>
     <string name="going">Going?</string>
     <string name="other">Other</string>
+    <string name="option">Option</string>
     <string name="title_activity_add_edit_rsvp">RSVP</string>
 
 </resources>

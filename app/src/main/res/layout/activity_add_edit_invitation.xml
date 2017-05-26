@@ -116,25 +116,12 @@
                 android:paddingLeft="5dp"
                 android:src="@drawable/powered_by_google_light"/>
 
-            <android.support.design.widget.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="16dp">
-
-                <fragment
-                    android:id="@+id/place_autocomplete_fragment"
-                    android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
-
-            </android.support.design.widget.TextInputLayout>
-
             <Button
                 android:id="@+id/button_send"
                 style="?android:textAppearanceSmall"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="32dp"
                 android:text="@string/send"
                 android:textStyle="bold"/>
 
